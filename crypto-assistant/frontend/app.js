@@ -35,6 +35,9 @@ function render(data) {
     stat(highRisk, "High-risk holdings"),
   ].join("");
 
+  // Meta radar
+  renderMetas(data.metas || []);
+
   // Shared coins
   $("#shared").innerHTML = data.shared_coins.length
     ? data.shared_coins.map(c => `
@@ -85,6 +88,29 @@ function renderActivity(events) {
 
 function stat(num, lbl) {
   return `<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`;
+}
+
+function renderMetas(metas) {
+  const el = $("#metas");
+  if (!metas.length) {
+    el.innerHTML = `<p class="empty">No recognised narratives in current holdings.</p>`;
+    return;
+  }
+  const max = Math.max(...metas.map(m => m.wallet_count));
+  el.innerHTML = metas.map((m, i) => `
+    <div class="meta-card ${i === 0 ? "lead" : ""}">
+      <div class="meta-top">
+        <span class="meta-name">${m.emoji} ${m.narrative}</span>
+        ${i === 0 ? '<span class="meta-lead-tag">TOP META</span>' : ""}
+      </div>
+      <div class="meta-bar"><div class="meta-fill" style="width:${(m.wallet_count / max) * 100}%"></div></div>
+      <div class="meta-stats">
+        <span>${m.wallet_count} wallets</span>
+        <span>${m.coin_count} coins</span>
+        <span class="${(m.avg_change_24h||0)>=0?'pos':'neg'}">${fmtPct(m.avg_change_24h)}</span>
+      </div>
+      <div class="meta-coins">${m.coins.join(" · ")}</div>
+    </div>`).join("");
 }
 
 function walletHtml(w, i) {

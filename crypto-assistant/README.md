@@ -26,6 +26,10 @@ only environment-variable changes.
   Each rule contributes points and a human-readable flag (🟢 ok / 🟡 / 🔴).
 - **Shared-coins meta signal** — highlights coins held by more than one tracked
   wallet, an early indicator of the narrative the group is following.
+- **Meta radar** — classifies each held coin into a narrative (AI/Agents, Dogs,
+  Cats, Frogs/Pepe, Politics, …) via a transparent keyword classifier, then
+  ranks which narratives the group is rotating into by wallet adoption, capital
+  committed and 24h performance — your "which meta is hot right now" view.
 - **Live activity feed** — a background poller snapshots holdings on a schedule,
   diffs each snapshot against the last, and records position changes
   (🟢 new buy, ➕ add, ➖ reduce, 🔴 exit) into a feed. Entering/exiting a
@@ -125,8 +129,8 @@ key to avoid public-RPC rate limits.
    *(Next within this phase: push notifications to phone/Telegram.)*
 3. **Deeper scam/bot detection** — holder graphs, bundler/sniper detection,
    LP-lock checks, RugCheck integration.
-4. **Meta radar** — cluster the coins tracked wallets buy into named narratives
-   (AI, dogs, politics, …) and trend them over time.
+4. **Meta radar** ✅ — classifies holdings into named narratives and ranks what
+   the group is rotating into. *(Next: trend metas over time using activity.)*
 5. **X / Twitter account tracking** — mirror the wallet view for ~the same set
    of people's X accounts (gated on X API budget).
 

@@ -12,7 +12,7 @@ import json
 from typing import Optional
 
 from .. import config, db
-from . import analysis, dexscreener
+from . import analysis, dexscreener, meta
 from .solana import SolanaClient, make_http_client
 
 
@@ -137,6 +137,7 @@ async def build_overview() -> dict:
     return {
         "wallets": wallet_views,
         "shared_coins": rollup,
+        "metas": meta.build_radar(wallet_views),
         "wallet_count": len(wallets),
         "coin_count": len(unique_mints),
     }

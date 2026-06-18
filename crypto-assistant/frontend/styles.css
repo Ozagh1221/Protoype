@@ -70,6 +70,17 @@ main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
 .shared-card .sym { font-weight: 700; font-size: 1rem; }
 .shared-card .held { color: var(--muted); font-size: 0.78rem; margin-top: 0.4rem; }
 
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.8rem; }
+.meta-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem; }
+.meta-card.lead { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.meta-top { display: flex; justify-content: space-between; align-items: center; }
+.meta-name { font-weight: 700; }
+.meta-lead-tag { font-size: 0.62rem; background: #14233f; color: var(--accent); padding: 0.12rem 0.4rem; border-radius: 99px; }
+.meta-bar { height: 6px; background: var(--panel-2); border-radius: 99px; margin: 0.6rem 0 0.5rem; overflow: hidden; }
+.meta-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+.meta-stats { display: flex; gap: 0.8rem; font-size: 0.8rem; color: var(--muted); }
+.meta-coins { margin-top: 0.4rem; font-size: 0.78rem; color: var(--text); opacity: 0.8; }
+
 .feed { display: flex; flex-direction: column; gap: 0.4rem; }
 .feed-row {
   display: flex; align-items: center; gap: 0.7rem;
