@@ -30,6 +30,11 @@ only environment-variable changes.
   Cats, Frogs/Pepe, Politics, …) via a transparent keyword classifier, then
   ranks which narratives the group is rotating into by wallet adoption, capital
   committed and 24h performance — your "which meta is hot right now" view.
+- **Deeper scam scan (RugCheck)** — each coin is optionally enriched with a
+  RugCheck report (LP lock/burn, named risks, rugged flag). It's a best-effort
+  enricher: if unreachable, the coin still gets full native analysis.
+- **Consolidated alerts** — a top-of-dashboard panel lifting every tracked
+  wallet that currently holds a high-risk or rugged coin, biggest exposure first.
 - **Live activity feed** — a background poller snapshots holdings on a schedule,
   diffs each snapshot against the last, and records position changes
   (🟢 new buy, ➕ add, ➖ reduce, 🔴 exit) into a feed. Entering/exiting a
@@ -102,7 +107,7 @@ Add your 20–50 targets here. `label` is the person/owner shown in the dashboar
 
 | Endpoint | Purpose |
 |----------|---------|
-| `GET /api/overview` | Wallets, analysed coins, shared-coin rollup |
+| `GET /api/overview` | Wallets, analysed coins, alerts, meta radar, shared coins |
 | `GET /api/activity?limit=100` | Recent position changes (live feed) |
 | `POST /api/poll` | Trigger a polling cycle immediately (live mode) |
 | `GET /api/health` | Status + whether demo mode is on |
@@ -127,8 +132,9 @@ key to avoid public-RPC rate limits.
 2. **Live activity feed + scheduled polling** ✅ — snapshots holdings and diffs
    them into a feed of new buys / adds / reduces / exits, with alerts.
    *(Next within this phase: push notifications to phone/Telegram.)*
-3. **Deeper scam/bot detection** — holder graphs, bundler/sniper detection,
-   LP-lock checks, RugCheck integration.
+3. **Deeper scam detection + alerts** ✅ — RugCheck enrichment (LP lock, named
+   risks, rugged flag) and a consolidated alerts panel. *(Next: bundler/sniper
+   detection and holder-graph analysis for bot clusters.)*
 4. **Meta radar** ✅ — classifies holdings into named narratives and ranks what
    the group is rotating into. *(Next: trend metas over time using activity.)*
 5. **X / Twitter account tracking** — mirror the wallet view for ~the same set

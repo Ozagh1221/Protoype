@@ -35,6 +35,9 @@ function render(data) {
     stat(highRisk, "High-risk holdings"),
   ].join("");
 
+  // Alerts
+  renderAlerts(data.alerts || []);
+
   // Meta radar
   renderMetas(data.metas || []);
 
@@ -88,6 +91,20 @@ function renderActivity(events) {
 
 function stat(num, lbl) {
   return `<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`;
+}
+
+function renderAlerts(alerts) {
+  const el = $("#alerts");
+  if (!alerts.length) {
+    el.innerHTML = `<p class="empty">No high-risk holdings across tracked wallets. ✅</p>`;
+    return;
+  }
+  el.innerHTML = alerts.map(a => `
+    <div class="alert-row">
+      <span class="alert-badge">${a.risk_score ?? "!"}</span>
+      <span class="alert-text"><strong>${a.wallet_label}</strong> holds <strong>${a.symbol}</strong> — ${a.reason}</span>
+      <span class="alert-val">${fmtUsd(a.value_usd)}</span>
+    </div>`).join("");
 }
 
 function renderMetas(metas) {

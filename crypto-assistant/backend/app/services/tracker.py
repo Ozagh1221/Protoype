@@ -12,7 +12,8 @@ import json
 from typing import Optional
 
 from .. import config, db
-from . import analysis, dexscreener, meta
+from . import alerts as alerts_svc
+from . import analysis, dexscreener, meta, rugcheck
 from .solana import SolanaClient, make_http_client
 
 
@@ -29,10 +30,11 @@ async def _analyze_mint(client, sol: SolanaClient, mint: str, sem: asyncio.Semap
         return cached
 
     async with sem:
-        market, mint_info, largest = await asyncio.gather(
+        market, mint_info, largest, rug = await asyncio.gather(
             dexscreener.get_market(client, mint),
             sol.get_mint_info(mint),
             sol.get_largest_holders(mint),
+            rugcheck.get_report(client, mint),
             return_exceptions=True,
         )
 
@@ -40,6 +42,7 @@ async def _analyze_mint(client, sol: SolanaClient, mint: str, sem: asyncio.Semap
     market = market if isinstance(market, dict) else None
     mint_info = mint_info if isinstance(mint_info, dict) else {}
     largest = largest if isinstance(largest, list) else []
+    rug = rug if isinstance(rug, dict) else None
 
     if mint_info.get("supply") is not None:
         decimals = mint_info.get("decimals", 0)
@@ -60,6 +63,7 @@ async def _analyze_mint(client, sol: SolanaClient, mint: str, sem: asyncio.Semap
         "dex_url": (market or {}).get("dex_url"),
         **risk,
     }
+    payload = rugcheck.merge_into_coin(payload, rug)  # optional deeper scan
     db.put_cached_coin(mint, payload)
     return payload
 
@@ -138,6 +142,7 @@ async def build_overview() -> dict:
         "wallets": wallet_views,
         "shared_coins": rollup,
         "metas": meta.build_radar(wallet_views),
+        "alerts": alerts_svc.build_alerts(wallet_views),
         "wallet_count": len(wallets),
         "coin_count": len(unique_mints),
     }

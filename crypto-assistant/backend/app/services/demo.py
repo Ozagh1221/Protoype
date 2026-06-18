@@ -6,6 +6,7 @@ analysis engine. This lets you verify the full UI + risk-scoring pipeline
 offline, and serves as a test fixture. The shape mirrors what the live
 Solana RPC + DexScreener services return.
 """
+from . import alerts as alerts_svc
 from . import analysis, meta
 
 # (mint_info, largest_holders, market) per coin — chosen to exercise the
@@ -120,4 +121,5 @@ def build_overview() -> dict:
     rollup.sort(key=lambda r: r["holder_count"], reverse=True)
     return {"wallets": wallet_views, "shared_coins": rollup,
             "metas": meta.build_radar(wallet_views),
+            "alerts": alerts_svc.build_alerts(wallet_views),
             "wallet_count": len(_WALLETS), "coin_count": len(_COINS), "demo": True}
