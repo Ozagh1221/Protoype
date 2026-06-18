@@ -39,6 +39,10 @@ only environment-variable changes.
   diffs each snapshot against the last, and records position changes
   (🟢 new buy, ➕ add, ➖ reduce, 🔴 exit) into a feed. Entering/exiting a
   position — and any buy of a high-risk coin — is flagged as an **alert**.
+- **X account tracking (scaffold)** — tracks an X handle per person (linked to
+  their wallet) and shows recent posts with keyword sentiment, via a pluggable
+  provider. See the note below: reading X requires a paid provider, so the
+  default provider is `none` and a `demo` provider previews the UI.
 
 ---
 
@@ -102,6 +106,8 @@ Add your 20–50 targets here. `label` is the person/owner shown in the dashboar
 | `MAX_CONCURRENCY` | `5` | Cap concurrent outbound requests (free rate limits) |
 | `POLL_ENABLED` | `1` | Run the background poller that builds the live activity feed |
 | `POLL_INTERVAL_SECONDS` | `300` | How often to snapshot holdings and diff for changes |
+| `X_PROVIDER` | `none` | X post source: `none`, `demo`, or a paid provider you add |
+| `X_ACCOUNTS_FILE` | `backend/x_accounts.json` | Tracked X handles, linked to people |
 
 ### API endpoints
 
@@ -109,6 +115,7 @@ Add your 20–50 targets here. `label` is the person/owner shown in the dashboar
 |----------|---------|
 | `GET /api/overview` | Wallets, analysed coins, alerts, meta radar, shared coins |
 | `GET /api/activity?limit=100` | Recent position changes (live feed) |
+| `GET /api/accounts` | Tracked X accounts + recent posts/sentiment |
 | `POST /api/poll` | Trigger a polling cycle immediately (live mode) |
 | `GET /api/health` | Status + whether demo mode is on |
 
@@ -137,8 +144,10 @@ key to avoid public-RPC rate limits.
    detection and holder-graph analysis for bot clusters.)*
 4. **Meta radar** ✅ — classifies holdings into named narratives and ranks what
    the group is rotating into. *(Next: trend metas over time using activity.)*
-5. **X / Twitter account tracking** — mirror the wallet view for ~the same set
-   of people's X accounts (gated on X API budget).
+5. **X / Twitter account tracking** 🟡 *scaffold done* — per-person account
+   tracking, posts + sentiment, pluggable provider. **Blocked on a data source:**
+   X's free tier can't read posts, so live X needs a paid provider (official
+   Basic, twitterapi.io, Apify, …). Wire one into `services/xtrack.py`.
 
 ---
 

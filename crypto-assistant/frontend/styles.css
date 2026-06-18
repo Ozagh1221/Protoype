@@ -94,6 +94,11 @@ main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
 .meta-stats { display: flex; gap: 0.8rem; font-size: 0.8rem; color: var(--muted); }
 .meta-coins { margin-top: 0.4rem; font-size: 0.78rem; color: var(--text); opacity: 0.8; }
 
+.post { padding: 0.45rem 0; border-bottom: 1px solid var(--panel-2); font-size: 0.86rem; }
+.post:last-child { border-bottom: none; }
+.post-sent { margin-right: 0.3rem; }
+code { background: var(--panel-2); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82rem; }
+
 .feed { display: flex; flex-direction: column; gap: 0.4rem; }
 .feed-row {
   display: flex; align-items: center; gap: 0.7rem;

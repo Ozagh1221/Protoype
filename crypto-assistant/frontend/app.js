@@ -9,14 +9,16 @@ async function load() {
   btn.disabled = true;
   status.textContent = "Fetching on-chain + market data…";
   try {
-    const [ovRes, actRes] = await Promise.all([
+    const [ovRes, actRes, accRes] = await Promise.all([
       fetch("/api/overview"),
       fetch("/api/activity"),
+      fetch("/api/accounts"),
     ]);
     if (!ovRes.ok) throw new Error((await ovRes.json()).detail || ovRes.statusText);
     const data = await ovRes.json();
     render(data);
     if (actRes.ok) renderActivity((await actRes.json()).activity || []);
+    if (accRes.ok) renderAccounts(await accRes.json());
     status.textContent = "Updated " + new Date().toLocaleTimeString();
   } catch (e) {
     status.textContent = "Error: " + e.message;
@@ -91,6 +93,31 @@ function renderActivity(events) {
 
 function stat(num, lbl) {
   return `<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`;
+}
+
+const LEAN_ICON = { bullish: "🟢", bearish: "🔴", neutral: "⚪" };
+
+function renderAccounts(data) {
+  const el = $("#accounts");
+  const accounts = data.accounts || [];
+  $("#x-provider").textContent = `— provider: ${data.provider}`;
+  if (!accounts.length || data.provider === "none") {
+    el.innerHTML = `<p class="empty">No X data. Set <code>X_PROVIDER</code> (and add accounts to <code>x_accounts.json</code>) to read posts — free tier can't read X, so this needs a paid provider. Try <code>DEMO_MODE=1</code> to preview.</p>`;
+    return;
+  }
+  el.innerHTML = accounts.map(a => `
+    <div class="wallet open">
+      <div class="wallet-head">
+        <div>
+          <div class="wallet-label">${LEAN_ICON[a.lean] || "⚪"} <a href="${a.url}" target="_blank">@${a.handle}</a></div>
+          <div class="wallet-addr">${a.person || ""}</div>
+        </div>
+        <div class="wallet-meta">${a.lean}</div>
+      </div>
+      <div class="coins" style="display:block">
+        ${(a.posts || []).map(p => `<div class="post ${p.sentiment}"><span class="post-sent">${LEAN_ICON[p.sentiment]}</span> ${p.text} <span class="feed-time">${timeAgo(p.ts)}</span></div>`).join("") || '<p class="empty">No recent posts.</p>'}
+      </div>
+    </div>`).join("");
 }
 
 function renderAlerts(alerts) {

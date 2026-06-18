@@ -29,6 +29,14 @@ DB_PATH = Path(os.getenv("DB_PATH", BASE_DIR / "data.sqlite3"))
 # blocks egress to Solana RPC / DexScreener.  export DEMO_MODE=1
 DEMO_MODE = os.getenv("DEMO_MODE", "0") in ("1", "true", "True")
 
+# --- X / Twitter account tracking ---------------------------------------
+# Provider for reading tracked X accounts' recent posts:
+#   "none"  - no X data (default; free tier can't read posts)
+#   "demo"  - fixture posts, for trying the UI offline
+#   (future) "twitterapi" / "apify" / official API - add in services/xtrack.py
+X_PROVIDER = os.getenv("X_PROVIDER", "none")
+X_ACCOUNTS_FILE = Path(os.getenv("X_ACCOUNTS_FILE", BASE_DIR / "x_accounts.json"))
+
 # --- Background polling (live activity feed) ----------------------------
 # When enabled (and not in DEMO_MODE), a scheduler snapshots wallet holdings
 # every POLL_INTERVAL_SECONDS and records new buys/adds/exits to the feed.

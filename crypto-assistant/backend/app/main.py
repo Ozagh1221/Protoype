@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import config, db
-from .services import demo, poller, tracker
+from .services import demo, poller, tracker, xtrack
 
 app = FastAPI(title="Crypto Investment Assistant", version="0.1.0")
 _scheduler = None
@@ -75,6 +75,12 @@ async def activity(limit: int = 100) -> dict:
     if config.DEMO_MODE:
         return {"activity": demo.build_activity()}
     return {"activity": db.get_recent_activity(limit)}
+
+
+@app.get("/api/accounts")
+async def accounts() -> dict:
+    """Tracked X accounts with recent posts + sentiment (provider-dependent)."""
+    return await xtrack.build_accounts_view()
 
 
 @app.post("/api/poll")

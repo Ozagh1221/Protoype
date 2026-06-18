@@ -1,0 +1,7 @@
+{
+  "_comment": "Tracked X (Twitter) accounts. 'person' links an account to the same person used as a wallet 'label' in wallets.json, so the dashboard can show a unified per-person view of wallet + X activity. 'handle' is the @ name without the @.",
+  "accounts": [
+    { "person": "Seed Wallet A", "handle": "example_trader_a" },
+    { "person": "Seed Wallet B", "handle": "example_trader_b" }
+  ]
+}
