@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto Investment Assistant</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Crypto Assistant</h1>
+      <span class="chain-tag">Solana</span>
+    </div>
+    <div class="controls">
+      <span id="status" class="status">Idle</span>
+      <button id="refresh">Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats" id="stats"></section>
+
+    <section class="panel">
+      <h2>Shared coins <small>held by more than one tracked wallet — early meta signal</small></h2>
+      <div id="shared" class="shared-grid"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Tracked wallets</h2>
+      <div id="wallets"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Free-tier data: Solana public RPC + DexScreener. Risk scoring is rule-based and informational — not financial advice.</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

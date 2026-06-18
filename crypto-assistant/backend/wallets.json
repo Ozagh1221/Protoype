@@ -1,0 +1,15 @@
+{
+  "_comment": "Tracked Solana wallets. Add up to 20-50 entries. 'label' is the person/owner name shown in the dashboard. The seed entries below are well-known public Solana addresses used so the dashboard works out of the box - replace them with your real targets.",
+  "wallets": [
+    {
+      "label": "Seed Wallet A",
+      "address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+      "notes": "Example public address - replace with a real tracked wallet"
+    },
+    {
+      "label": "Seed Wallet B",
+      "address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "notes": "Example public address - replace with a real tracked wallet"
+    }
+  ]
+}

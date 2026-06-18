@@ -1,0 +1,104 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #131823;
+  --panel-2: #1b2230;
+  --border: #232c3d;
+  --text: #e6e9ef;
+  --muted: #8a93a6;
+  --green: #2ecc71;
+  --yellow: #f1c40f;
+  --red: #e74c3c;
+  --accent: #5b8def;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand { display: flex; align-items: center; gap: 0.6rem; }
+.brand h1 { font-size: 1.1rem; margin: 0; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+.chain-tag {
+  font-size: 0.7rem; background: #14233f; color: var(--accent);
+  padding: 0.15rem 0.5rem; border-radius: 99px; border: 1px solid #1f3a6b;
+}
+
+.controls { display: flex; align-items: center; gap: 0.8rem; }
+.status { color: var(--muted); font-size: 0.85rem; }
+button {
+  background: var(--accent); color: white; border: none;
+  padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;
+}
+button:disabled { opacity: 0.5; cursor: wait; }
+
+main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+
+.stats { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.stat {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.9rem 1.2rem; min-width: 130px;
+}
+.stat .num { font-size: 1.6rem; font-weight: 700; }
+.stat .lbl { color: var(--muted); font-size: 0.8rem; }
+
+.panel { margin-bottom: 2rem; }
+.panel h2 { font-size: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+.panel h2 small { color: var(--muted); font-weight: 400; font-size: 0.78rem; margin-left: 0.4rem; }
+
+.shared-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.8rem; }
+.shared-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.8rem;
+}
+.shared-card .sym { font-weight: 700; font-size: 1rem; }
+.shared-card .held { color: var(--muted); font-size: 0.78rem; margin-top: 0.4rem; }
+
+.wallet {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 0.8rem; overflow: hidden;
+}
+.wallet-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.9rem 1.1rem; cursor: pointer;
+}
+.wallet-head:hover { background: var(--panel-2); }
+.wallet-label { font-weight: 600; }
+.wallet-addr { color: var(--muted); font-size: 0.75rem; font-family: monospace; }
+.wallet-meta { color: var(--muted); font-size: 0.8rem; }
+
+.coins { display: none; padding: 0 1.1rem 0.8rem; }
+.wallet.open .coins { display: block; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th { text-align: left; color: var(--muted); font-weight: 500; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); }
+td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--panel-2); }
+td a { color: var(--accent); text-decoration: none; }
+
+.badge { padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.72rem; font-weight: 700; }
+.badge.low { background: rgba(46,204,113,0.15); color: var(--green); }
+.badge.medium { background: rgba(241,196,15,0.15); color: var(--yellow); }
+.badge.high { background: rgba(231,76,60,0.15); color: var(--red); }
+
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.empty { color: var(--muted); padding: 0.6rem 0; font-style: italic; }
+.error { color: var(--red); font-size: 0.8rem; }
+
+footer { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 1.5rem; }
