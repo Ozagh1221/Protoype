@@ -74,6 +74,25 @@ def _coin_payload(mint: str) -> dict:
     }
 
 
+def build_activity() -> list[dict]:
+    """Synthetic activity feed so the live panel is viewable offline."""
+    import time
+    now = time.time()
+    raw = [
+        (2,    "Smart Money Carol", "AImintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4", "GOAT", "NEW", "alert", "risk 12"),
+        (9,    "Whale Alice",       "AImintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4", "GOAT", "ADD", "info", "risk 12"),
+        (24,   "Degen Bob",         "RUGmintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX3", "SAFEMOON2", "NEW", "alert", "risk 100 - HIGH RISK"),
+        (51,   "Whale Alice",       "WIFmintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2", "WIF", "REDUCE", "info", None),
+        (140,  "Smart Money Carol", "BONKmintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1", "BONK", "NEW", "alert", "risk 0"),
+        (210,  "Degen Bob",         "WIFmintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2", "WIF", "EXIT", "alert", None),
+    ]
+    return [{
+        "ts": now - mins * 60, "wallet_label": label, "mint": mint, "symbol": sym,
+        "event_type": etype, "level": level, "note": note,
+        "delta": 1 if etype in ("NEW", "ADD") else -1,
+    } for mins, label, mint, sym, etype, level, note in raw]
+
+
 def build_overview() -> dict:
     coins = {m: _coin_payload(m) for m in _COINS}
     wallet_views = []

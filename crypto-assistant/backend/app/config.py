@@ -29,6 +29,12 @@ DB_PATH = Path(os.getenv("DB_PATH", BASE_DIR / "data.sqlite3"))
 # blocks egress to Solana RPC / DexScreener.  export DEMO_MODE=1
 DEMO_MODE = os.getenv("DEMO_MODE", "0") in ("1", "true", "True")
 
+# --- Background polling (live activity feed) ----------------------------
+# When enabled (and not in DEMO_MODE), a scheduler snapshots wallet holdings
+# every POLL_INTERVAL_SECONDS and records new buys/adds/exits to the feed.
+POLL_ENABLED = os.getenv("POLL_ENABLED", "1") in ("1", "true", "True")
+POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "300"))
+
 # --- Behaviour tuning ---------------------------------------------------
 # How long (seconds) cached coin analysis stays fresh before re-fetching.
 COIN_CACHE_TTL = int(os.getenv("COIN_CACHE_TTL", "120"))

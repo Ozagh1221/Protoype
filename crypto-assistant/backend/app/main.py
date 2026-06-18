@@ -7,9 +7,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import config, db
-from .services import demo, tracker
+from .services import demo, poller, tracker
 
 app = FastAPI(title="Crypto Investment Assistant", version="0.1.0")
+_scheduler = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,6 +25,27 @@ FRONTEND_DIR = config.REPO_DIR / "frontend"
 @app.on_event("startup")
 def _startup() -> None:
     db.init_db()
+    # Start the background poller for the live activity feed (live mode only).
+    global _scheduler
+    if config.POLL_ENABLED and not config.DEMO_MODE:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+        _scheduler = AsyncIOScheduler()
+        _scheduler.add_job(
+            poller.poll_once,
+            "interval",
+            seconds=config.POLL_INTERVAL_SECONDS,
+            next_run_time=None,  # first run after one interval; avoids startup spike
+            id="poll_wallets",
+            max_instances=1,
+        )
+        _scheduler.start()
+
+
+@app.on_event("shutdown")
+def _shutdown() -> None:
+    if _scheduler:
+        _scheduler.shutdown(wait=False)
 
 
 @app.get("/api/health")
@@ -45,6 +67,23 @@ async def overview() -> dict:
         return await tracker.build_overview()
     except Exception as e:  # surface a clean error to the dashboard
         raise HTTPException(status_code=502, detail=f"Failed to build overview: {e}")
+
+
+@app.get("/api/activity")
+async def activity(limit: int = 100) -> dict:
+    """Recent position changes across all tracked wallets (live feed)."""
+    if config.DEMO_MODE:
+        return {"activity": demo.build_activity()}
+    return {"activity": db.get_recent_activity(limit)}
+
+
+@app.post("/api/poll")
+async def trigger_poll() -> dict:
+    """Manually run a polling cycle now (useful between scheduled runs)."""
+    if config.DEMO_MODE:
+        return {"recorded": 0, "demo": True}
+    recorded = await poller.poll_once()
+    return {"recorded": recorded}
 
 
 # --- Serve the dashboard ------------------------------------------------

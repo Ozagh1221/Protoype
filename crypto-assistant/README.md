@@ -26,6 +26,10 @@ only environment-variable changes.
   Each rule contributes points and a human-readable flag (🟢 ok / 🟡 / 🔴).
 - **Shared-coins meta signal** — highlights coins held by more than one tracked
   wallet, an early indicator of the narrative the group is following.
+- **Live activity feed** — a background poller snapshots holdings on a schedule,
+  diffs each snapshot against the last, and records position changes
+  (🟢 new buy, ➕ add, ➖ reduce, 🔴 exit) into a feed. Entering/exiting a
+  position — and any buy of a high-risk coin — is flagged as an **alert**.
 
 ---
 
@@ -39,8 +43,10 @@ Backend (FastAPI)
    ├─ services/solana.py     Solana JSON-RPC client (holdings, authorities, holders)
    ├─ services/dexscreener.py live price / market cap / liquidity
    ├─ services/analysis.py   rule-based risk/scam scoring
+   ├─ services/poller.py     background snapshot + diff -> activity feed
    ├─ services/demo.py       offline fixture data (DEMO_MODE)
-   └─ db.py                  SQLite cache (short TTL) for coin analysis
+   └─ db.py                  SQLite: coin cache + holdings snapshots + activity
+   (APScheduler runs poller.poll_once every POLL_INTERVAL_SECONDS in live mode)
 ```
 
 ---
@@ -85,6 +91,17 @@ Add your 20–50 targets here. `label` is the person/owner shown in the dashboar
 | `COIN_CACHE_TTL` | `120` | Seconds before cached coin analysis is refreshed |
 | `MIN_HOLDING_USD` | `5` | Hide holdings below this USD value (dust) |
 | `MAX_CONCURRENCY` | `5` | Cap concurrent outbound requests (free rate limits) |
+| `POLL_ENABLED` | `1` | Run the background poller that builds the live activity feed |
+| `POLL_INTERVAL_SECONDS` | `300` | How often to snapshot holdings and diff for changes |
+
+### API endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/overview` | Wallets, analysed coins, shared-coin rollup |
+| `GET /api/activity?limit=100` | Recent position changes (live feed) |
+| `POST /api/poll` | Trigger a polling cycle immediately (live mode) |
+| `GET /api/health` | Status + whether demo mode is on |
 
 ---
 
@@ -102,9 +119,10 @@ key to avoid public-RPC rate limits.
 
 ## Roadmap
 
-1. **Wallet tracking + coin analysis** ✅ *(this phase)*
-2. **Live alerts + scheduled polling** — detect new buys/sells and big moves,
-   push notifications (APScheduler scaffolding already present).
+1. **Wallet tracking + coin analysis** ✅
+2. **Live activity feed + scheduled polling** ✅ — snapshots holdings and diffs
+   them into a feed of new buys / adds / reduces / exits, with alerts.
+   *(Next within this phase: push notifications to phone/Telegram.)*
 3. **Deeper scam/bot detection** — holder graphs, bundler/sniper detection,
    LP-lock checks, RugCheck integration.
 4. **Meta radar** — cluster the coins tracked wallets buy into named narratives

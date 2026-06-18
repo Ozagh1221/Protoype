@@ -9,10 +9,14 @@ async function load() {
   btn.disabled = true;
   status.textContent = "Fetching on-chain + market data…";
   try {
-    const res = await fetch("/api/overview");
-    if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
-    const data = await res.json();
+    const [ovRes, actRes] = await Promise.all([
+      fetch("/api/overview"),
+      fetch("/api/activity"),
+    ]);
+    if (!ovRes.ok) throw new Error((await ovRes.json()).detail || ovRes.statusText);
+    const data = await ovRes.json();
     render(data);
+    if (actRes.ok) renderActivity((await actRes.json()).activity || []);
     status.textContent = "Updated " + new Date().toLocaleTimeString();
   } catch (e) {
     status.textContent = "Error: " + e.message;
@@ -46,6 +50,37 @@ function render(data) {
   document.querySelectorAll(".wallet-head").forEach(h => {
     h.addEventListener("click", () => h.parentElement.classList.toggle("open"));
   });
+}
+
+const EVENT_META = {
+  NEW:    { icon: "🟢", verb: "bought" },
+  ADD:    { icon: "➕", verb: "added to" },
+  REDUCE: { icon: "➖", verb: "reduced" },
+  EXIT:   { icon: "🔴", verb: "exited" },
+};
+
+function timeAgo(ts) {
+  const secs = Math.max(0, Date.now() / 1000 - ts);
+  if (secs < 60) return "just now";
+  if (secs < 3600) return Math.floor(secs / 60) + "m ago";
+  if (secs < 86400) return Math.floor(secs / 3600) + "h ago";
+  return Math.floor(secs / 86400) + "d ago";
+}
+
+function renderActivity(events) {
+  const el = $("#activity");
+  if (!events.length) {
+    el.innerHTML = `<p class="empty">No activity yet — the poller records new buys/exits between snapshots (live mode).</p>`;
+    return;
+  }
+  el.innerHTML = events.map(e => {
+    const m = EVENT_META[e.event_type] || { icon: "•", verb: e.event_type };
+    return `<div class="feed-row ${e.level === "alert" ? "alert" : ""}">
+      <span class="feed-icon">${m.icon}</span>
+      <span class="feed-text"><strong>${e.wallet_label || "?"}</strong> ${m.verb} <strong>${e.symbol || ""}</strong>${e.note ? ` <span class="feed-note">${e.note}</span>` : ""}</span>
+      <span class="feed-time">${timeAgo(e.ts)}</span>
+    </div>`;
+  }).join("");
 }
 
 function stat(num, lbl) {
