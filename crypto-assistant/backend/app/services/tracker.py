@@ -9,12 +9,16 @@ coin held by many wallets is only fetched once per refresh.
 """
 import asyncio
 import json
+import re
 from typing import Optional
 
 from .. import config, db
 from . import alerts as alerts_svc
 from . import analysis, dexscreener, meta, rugcheck
 from .solana import SolanaClient, make_http_client
+
+# Base58 string of typical Solana mint length.
+_MINT_RE = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
 
 
 def load_wallets() -> list[dict]:
@@ -66,6 +70,26 @@ async def _analyze_mint(client, sol: SolanaClient, mint: str, sem: asyncio.Semap
     payload = rugcheck.merge_into_coin(payload, rug)  # optional deeper scan
     db.put_cached_coin(mint, payload)
     return payload
+
+
+async def lookup_coin(query: str) -> Optional[dict]:
+    """On-demand analysis for ANY coin by mint or symbol/name.
+
+    Returns the same coin payload used in the dashboard (market data + risk
+    analysis + RugCheck), or None if the query can't be resolved.
+    """
+    query = (query or "").strip()
+    if not query:
+        return None
+    sem = asyncio.Semaphore(config.MAX_CONCURRENCY)
+    async with make_http_client() as client:
+        sol = SolanaClient(client)
+        mint = query if _MINT_RE.match(query) else await dexscreener.resolve_query(client, query)
+        if not mint:
+            return None
+        coin = await _analyze_mint(client, sol, mint, sem)
+    coin["narratives"] = meta.classify_coin(coin.get("symbol"), coin.get("name"))
+    return coin
 
 
 async def build_overview() -> dict:

@@ -94,6 +94,17 @@ def build_activity() -> list[dict]:
     } for mins, label, mint, sym, etype, level, note in raw]
 
 
+def lookup_coin(query: str) -> dict | None:
+    """Demo on-demand lookup: match a fixture coin by symbol or mint."""
+    q = (query or "").strip().lower()
+    for mint in _COINS:
+        payload = _coin_payload(mint)
+        if q == mint.lower() or q == (payload["symbol"] or "").lower():
+            payload["narratives"] = meta.classify_coin(payload["symbol"], payload["name"])
+            return payload
+    return None
+
+
 def build_overview() -> dict:
     coins = {m: _coin_payload(m) for m in _COINS}
     wallet_views = []

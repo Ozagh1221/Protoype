@@ -47,3 +47,26 @@ def _to_float(value) -> Optional[float]:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+async def resolve_query(client: httpx.AsyncClient, query: str) -> Optional[str]:
+    """Resolve a free-text query (symbol or name) to a Solana token mint.
+
+    Picks the deepest-liquidity Solana pair, preferring an exact symbol match.
+    """
+    url = f"{config.DEXSCREENER_BASE}/latest/dex/search"
+    try:
+        resp = await client.get(url, params={"q": query})
+        resp.raise_for_status()
+    except (httpx.HTTPError, httpx.TimeoutException):
+        return None
+
+    pairs = [p for p in (resp.json() or {}).get("pairs") or [] if p.get("chainId") == "solana"]
+    if not pairs:
+        return None
+
+    q = query.strip().lower()
+    exact = [p for p in pairs if ((p.get("baseToken") or {}).get("symbol") or "").lower() == q]
+    pool = exact or pairs
+    best = max(pool, key=lambda p: (p.get("liquidity") or {}).get("usd") or 0)
+    return (best.get("baseToken") or {}).get("address")

@@ -40,7 +40,32 @@ body {
   padding: 0.15rem 0.5rem; border-radius: 99px; border: 1px solid #1f3a6b;
 }
 
-.controls { display: flex; align-items: center; gap: 0.8rem; }
+.controls { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+.coin-input {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  padding: 0.5rem 0.7rem; border-radius: 6px; min-width: 240px; font-size: 0.85rem;
+}
+.coin-input::placeholder { color: var(--muted); }
+
+.lookup-card {
+  position: relative; background: var(--panel); border: 1px solid var(--accent);
+  border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.2rem;
+}
+.lookup-card.error { border-color: var(--red); color: var(--red); }
+.lookup-close {
+  position: absolute; top: 0.6rem; right: 0.7rem; background: none; color: var(--muted);
+  font-size: 1.2rem; padding: 0; width: auto;
+}
+.lookup-head { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+.lookup-sym { font-size: 1.3rem; font-weight: 700; }
+.lookup-sym a { color: var(--accent); text-decoration: none; }
+.lookup-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; font-size: 1rem; }
+.lookup-stats small { color: var(--muted); font-size: 0.7rem; }
+.flags { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.flag { font-size: 0.82rem; padding-left: 0.4rem; border-left: 3px solid var(--border); }
+.flag.high { border-color: var(--red); }
+.flag.med { border-color: var(--yellow); }
+.flag.ok { border-color: var(--green); color: var(--muted); }
 .status { color: var(--muted); font-size: 0.85rem; }
 button {
   background: var(--accent); color: white; border: none;

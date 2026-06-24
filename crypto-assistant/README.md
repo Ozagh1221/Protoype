@@ -17,6 +17,9 @@ only environment-variable changes.
   and fetches each one's SPL token holdings via Solana RPC.
 - **Live coin data** — for every held coin, pulls price, market cap, liquidity,
   24h volume and price change from DexScreener (free, no key).
+- **On-demand coin lookup** — search box (and `/api/coin?q=`) to analyse ANY
+  Solana coin by mint or symbol, not just ones held by tracked wallets:
+  resolves the symbol via DexScreener, then runs the full risk pipeline.
 - **Risk / scam analysis** — a transparent, rule-based engine scores each coin
   0–100 from on-chain + market facts:
   - mint authority active? (supply can be inflated)
@@ -114,6 +117,7 @@ Add your 20–50 targets here. `label` is the person/owner shown in the dashboar
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/overview` | Wallets, analysed coins, alerts, meta radar, shared coins |
+| `GET /api/coin?q=<mint or symbol>` | On-demand market data + risk analysis for any coin |
 | `GET /api/activity?limit=100` | Recent position changes (live feed) |
 | `GET /api/accounts` | Tracked X accounts + recent posts/sentiment |
 | `POST /api/poll` | Trigger a polling cycle immediately (live mode) |

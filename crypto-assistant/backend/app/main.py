@@ -77,6 +77,15 @@ async def activity(limit: int = 100) -> dict:
     return {"activity": db.get_recent_activity(limit)}
 
 
+@app.get("/api/coin")
+async def coin_lookup(q: str) -> dict:
+    """On-demand market data + risk analysis for any coin by mint or symbol."""
+    result = demo.lookup_coin(q) if config.DEMO_MODE else await tracker.lookup_coin(q)
+    if not result:
+        raise HTTPException(status_code=404, detail=f"No Solana coin found for '{q}'")
+    return result
+
+
 @app.get("/api/accounts")
 async def accounts() -> dict:
     """Tracked X accounts with recent posts + sentiment (provider-dependent)."""

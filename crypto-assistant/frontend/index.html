@@ -14,12 +14,16 @@
       <span class="chain-tag">Solana</span>
     </div>
     <div class="controls">
+      <input id="coin-q" class="coin-input" placeholder="Look up any coin (mint or symbol)…" />
+      <button id="lookup">Look up</button>
       <span id="status" class="status">Idle</span>
       <button id="refresh">Refresh</button>
     </div>
   </header>
 
   <main>
+    <div id="lookup-result"></div>
+
     <section class="stats" id="stats"></section>
 
     <section class="panel" id="alerts-panel">

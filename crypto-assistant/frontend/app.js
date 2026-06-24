@@ -191,5 +191,38 @@ function coinRow(c) {
   </tr>`;
 }
 
+async function lookupCoin() {
+  const q = $("#coin-q").value.trim();
+  const out = $("#lookup-result");
+  if (!q) { out.innerHTML = ""; return; }
+  out.innerHTML = `<div class="lookup-card">Looking up <strong>${q}</strong>…</div>`;
+  try {
+    const res = await fetch("/api/coin?q=" + encodeURIComponent(q));
+    if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+    const c = await res.json();
+    const flags = (c.flags || []).map(f =>
+      `<li class="flag ${f.severity}">${f.message}</li>`).join("");
+    out.innerHTML = `<div class="lookup-card">
+      <button class="lookup-close" onclick="document.getElementById('lookup-result').innerHTML=''">×</button>
+      <div class="lookup-head">
+        <span class="lookup-sym">${c.dex_url ? `<a href="${c.dex_url}" target="_blank">${c.symbol}</a>` : c.symbol}</span>
+        <span class="badge ${c.risk_level}">RISK ${c.risk_score}</span>
+        ${(c.narratives||[]).map(n => `<span class="chain-tag">${n}</span>`).join("")}
+      </div>
+      <div class="lookup-stats">
+        <span>${fmtUsd(c.market_cap)} <small>mcap</small></span>
+        <span>${fmtUsd(c.price_usd)} <small>price</small></span>
+        <span class="${(c.price_change_24h||0)>=0?'pos':'neg'}">${fmtPct(c.price_change_24h)} <small>24h</small></span>
+        <span>${fmtUsd(c.liquidity_usd)} <small>liq</small></span>
+      </div>
+      <ul class="flags">${flags}</ul>
+    </div>`;
+  } catch (e) {
+    out.innerHTML = `<div class="lookup-card error">${e.message}</div>`;
+  }
+}
+
 $("#refresh").addEventListener("click", load);
+$("#lookup").addEventListener("click", lookupCoin);
+$("#coin-q").addEventListener("keydown", (e) => { if (e.key === "Enter") lookupCoin(); });
 load();
