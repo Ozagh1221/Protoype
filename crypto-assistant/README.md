@@ -20,6 +20,12 @@ only environment-variable changes.
 - **On-demand coin lookup** — search box (and `/api/coin?q=`) to analyse ANY
   Solana coin by mint or symbol, not just ones held by tracked wallets:
   resolves the symbol via DexScreener, then runs the full risk pipeline.
+- **Price history charts** — coin lookups include a 24h hourly sparkline from
+  GeckoTerminal OHLCV (free, keyless).
+- **Market radar** — wallet-independent trending coins and new launches across
+  Solana (GeckoTerminal trending/new pools), via `/api/market`.
+- **Resilient market data** — GeckoTerminal is a backup source: if DexScreener
+  has no pair for a mint, the analyser falls back to GeckoTerminal automatically.
 - **Risk / scam analysis** — a transparent, rule-based engine scores each coin
   0–100 from on-chain + market facts:
   - mint authority active? (supply can be inflated)
@@ -117,7 +123,8 @@ Add your 20–50 targets here. `label` is the person/owner shown in the dashboar
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/overview` | Wallets, analysed coins, alerts, meta radar, shared coins |
-| `GET /api/coin?q=<mint or symbol>` | On-demand market data + risk analysis for any coin |
+| `GET /api/coin?q=<mint or symbol>` | On-demand market data + risk analysis (+ sparkline) for any coin |
+| `GET /api/market` | Trending coins + new launches across Solana |
 | `GET /api/activity?limit=100` | Recent position changes (live feed) |
 | `GET /api/accounts` | Tracked X accounts + recent posts/sentiment |
 | `POST /api/poll` | Trigger a polling cycle immediately (live mode) |

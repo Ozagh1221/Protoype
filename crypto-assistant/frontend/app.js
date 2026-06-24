@@ -9,16 +9,18 @@ async function load() {
   btn.disabled = true;
   status.textContent = "Fetching on-chain + market data…";
   try {
-    const [ovRes, actRes, accRes] = await Promise.all([
+    const [ovRes, actRes, accRes, mktRes] = await Promise.all([
       fetch("/api/overview"),
       fetch("/api/activity"),
       fetch("/api/accounts"),
+      fetch("/api/market"),
     ]);
     if (!ovRes.ok) throw new Error((await ovRes.json()).detail || ovRes.statusText);
     const data = await ovRes.json();
     render(data);
     if (actRes.ok) renderActivity((await actRes.json()).activity || []);
     if (accRes.ok) renderAccounts(await accRes.json());
+    if (mktRes.ok) renderMarket(await mktRes.json());
     status.textContent = "Updated " + new Date().toLocaleTimeString();
   } catch (e) {
     status.textContent = "Error: " + e.message;
@@ -93,6 +95,27 @@ function renderActivity(events) {
 
 function stat(num, lbl) {
   return `<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`;
+}
+
+function sparkline(points, w = 120, h = 32) {
+  const vals = (points || []).map(p => p.close).filter(v => v != null);
+  if (vals.length < 2) return "";
+  const min = Math.min(...vals), max = Math.max(...vals), span = max - min || 1;
+  const step = w / (vals.length - 1);
+  const d = vals.map((v, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(h - ((v - min) / span) * h).toFixed(1)}`).join(" ");
+  const up = vals[vals.length - 1] >= vals[0];
+  const color = up ? "#2ecc71" : "#e74c3c";
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+}
+
+function renderMarket(data) {
+  const row = (c) => `<div class="mkt-row">
+    <span class="mkt-sym">${c.symbol || "?"}${(c.narratives||[]).length ? ` <span class="mkt-tag">${c.narratives[0]}</span>` : ""}</span>
+    <span class="mkt-mc">${fmtUsd(c.market_cap)}</span>
+    <span class="${(c.price_change_24h||0)>=0?'pos':'neg'}">${fmtPct(c.price_change_24h)}</span>
+  </div>`;
+  $("#trending").innerHTML = (data.trending || []).map(row).join("") || `<p class="empty">No data.</p>`;
+  $("#new-launches").innerHTML = (data.new_launches || []).map(row).join("") || `<p class="empty">No data.</p>`;
 }
 
 const LEAN_ICON = { bullish: "🟢", bearish: "🔴", neutral: "⚪" };
@@ -209,11 +232,14 @@ async function lookupCoin() {
         <span class="badge ${c.risk_level}">RISK ${c.risk_score}</span>
         ${(c.narratives||[]).map(n => `<span class="chain-tag">${n}</span>`).join("")}
       </div>
-      <div class="lookup-stats">
-        <span>${fmtUsd(c.market_cap)} <small>mcap</small></span>
-        <span>${fmtUsd(c.price_usd)} <small>price</small></span>
-        <span class="${(c.price_change_24h||0)>=0?'pos':'neg'}">${fmtPct(c.price_change_24h)} <small>24h</small></span>
-        <span>${fmtUsd(c.liquidity_usd)} <small>liq</small></span>
+      <div class="lookup-body">
+        <div class="lookup-stats">
+          <span>${fmtUsd(c.market_cap)} <small>mcap</small></span>
+          <span>${fmtUsd(c.price_usd)} <small>price</small></span>
+          <span class="${(c.price_change_24h||0)>=0?'pos':'neg'}">${fmtPct(c.price_change_24h)} <small>24h</small></span>
+          <span>${fmtUsd(c.liquidity_usd)} <small>liq</small></span>
+        </div>
+        <div class="lookup-spark">${sparkline(c.sparkline)}<small>${c.data_source ? "via " + c.data_source : ""}</small></div>
       </div>
       <ul class="flags">${flags}</ul>
     </div>`;

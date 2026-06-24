@@ -59,8 +59,22 @@ body {
 .lookup-head { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
 .lookup-sym { font-size: 1.3rem; font-weight: 700; }
 .lookup-sym a { color: var(--accent); text-decoration: none; }
-.lookup-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; font-size: 1rem; }
+.lookup-body { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+.lookup-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 1rem; }
 .lookup-stats small { color: var(--muted); font-size: 0.7rem; }
+.lookup-spark { display: flex; flex-direction: column; align-items: flex-end; }
+.lookup-spark small { color: var(--muted); font-size: 0.68rem; }
+.spark { display: block; }
+
+.market-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.sub { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.5rem; }
+.mkt-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.5rem 0.7rem; margin-bottom: 0.4rem; font-size: 0.85rem; }
+.mkt-sym { font-weight: 600; flex: 1; }
+.mkt-tag { font-size: 0.66rem; color: var(--accent); background: #14233f; padding: 0.08rem 0.35rem; border-radius: 99px; margin-left: 0.3rem; }
+.mkt-mc { color: var(--muted); }
+@media (max-width: 700px) { .market-cols { grid-template-columns: 1fr; } }
 .flags { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; }
 .flag { font-size: 0.82rem; padding-left: 0.4rem; border-left: 3px solid var(--border); }
 .flag.high { border-color: var(--red); }

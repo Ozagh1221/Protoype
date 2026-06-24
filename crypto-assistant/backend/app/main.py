@@ -86,6 +86,17 @@ async def coin_lookup(q: str) -> dict:
     return result
 
 
+@app.get("/api/market")
+async def market() -> dict:
+    """Market-wide trending coins + new launches on Solana (wallet-independent)."""
+    if config.DEMO_MODE:
+        return demo.market_overview()
+    try:
+        return await tracker.market_overview()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Failed to load market data: {e}")
+
+
 @app.get("/api/accounts")
 async def accounts() -> dict:
     """Tracked X accounts with recent posts + sentiment (provider-dependent)."""

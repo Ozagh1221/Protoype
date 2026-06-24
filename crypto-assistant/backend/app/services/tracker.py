@@ -14,7 +14,7 @@ from typing import Optional
 
 from .. import config, db
 from . import alerts as alerts_svc
-from . import analysis, dexscreener, meta, rugcheck
+from . import analysis, dexscreener, geckoterminal, meta, rugcheck
 from .solana import SolanaClient, make_http_client
 
 # Base58 string of typical Solana mint length.
@@ -48,6 +48,10 @@ async def _analyze_mint(client, sol: SolanaClient, mint: str, sem: asyncio.Semap
     largest = largest if isinstance(largest, list) else []
     rug = rug if isinstance(rug, dict) else None
 
+    # Backup data source: if DexScreener had no pair, try GeckoTerminal.
+    if market is None:
+        market = await geckoterminal.get_market(client, mint)
+
     if mint_info.get("supply") is not None:
         decimals = mint_info.get("decimals", 0)
         mint_info["supply_ui"] = mint_info["supply"] / (10 ** decimals)
@@ -65,6 +69,8 @@ async def _analyze_mint(client, sol: SolanaClient, mint: str, sem: asyncio.Semap
         "price_change_24h": (market or {}).get("price_change_24h"),
         "price_change_1h": (market or {}).get("price_change_1h"),
         "dex_url": (market or {}).get("dex_url"),
+        "pair_address": (market or {}).get("pair_address"),
+        "data_source": (market or {}).get("source"),
         **risk,
     }
     payload = rugcheck.merge_into_coin(payload, rug)  # optional deeper scan
@@ -88,8 +94,22 @@ async def lookup_coin(query: str) -> Optional[dict]:
         if not mint:
             return None
         coin = await _analyze_mint(client, sol, mint, sem)
+        # Attach a 24h hourly price history for the sparkline chart.
+        coin["sparkline"] = await geckoterminal.get_ohlcv(client, coin.get("pair_address"))
     coin["narratives"] = meta.classify_coin(coin.get("symbol"), coin.get("name"))
     return coin
+
+
+async def market_overview() -> dict:
+    """Market-wide trending pools + new launches on Solana (wallet-independent)."""
+    async with make_http_client() as client:
+        trending, new = await asyncio.gather(
+            geckoterminal.trending_pools(client),
+            geckoterminal.new_pools(client),
+        )
+    for p in trending + new:
+        p["narratives"] = meta.classify_coin(p.get("symbol"), p.get("name"))
+    return {"trending": trending, "new_launches": new}
 
 
 async def build_overview() -> dict:

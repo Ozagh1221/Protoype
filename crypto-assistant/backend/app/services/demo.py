@@ -94,6 +94,15 @@ def build_activity() -> list[dict]:
     } for mins, label, mint, sym, etype, level, note in raw]
 
 
+def _demo_sparkline(seed: float) -> list[dict]:
+    """A deterministic wavy 24-point series around a seed price."""
+    import math, time
+    now = time.time()
+    return [{"ts": now - (23 - i) * 3600,
+             "close": round(seed * (1 + 0.06 * math.sin(i / 2.0) + 0.01 * i), 8)}
+            for i in range(24)]
+
+
 def lookup_coin(query: str) -> dict | None:
     """Demo on-demand lookup: match a fixture coin by symbol or mint."""
     q = (query or "").strip().lower()
@@ -101,8 +110,28 @@ def lookup_coin(query: str) -> dict | None:
         payload = _coin_payload(mint)
         if q == mint.lower() or q == (payload["symbol"] or "").lower():
             payload["narratives"] = meta.classify_coin(payload["symbol"], payload["name"])
+            payload["sparkline"] = _demo_sparkline(payload["price_usd"] or 1.0)
             return payload
     return None
+
+
+def market_overview() -> dict:
+    """Demo market-wide trending + new launches."""
+    trending = [
+        {"symbol": "GOAT", "name": "Goatseus Maximus", "market_cap": 420_000_000,
+         "price_change_24h": 24.7, "volume_24h": 45_000_000, "narratives": ["AI / Agents"]},
+        {"symbol": "WIF", "name": "dogwifhat", "market_cap": 1_850_000_000,
+         "price_change_24h": -3.1, "volume_24h": 120_000_000, "narratives": ["Dogs"]},
+        {"symbol": "PEPE", "name": "Pepe on Sol", "market_cap": 12_000_000,
+         "price_change_24h": 61.0, "volume_24h": 8_000_000, "narratives": ["Frogs / Pepe"]},
+    ]
+    new = [
+        {"symbol": "AGENTX", "name": "Agent X AI", "market_cap": 250_000,
+         "price_change_24h": 320.0, "volume_24h": 400_000, "narratives": ["AI / Agents"]},
+        {"symbol": "CATWIF", "name": "catwifhat", "market_cap": 90_000,
+         "price_change_24h": -18.0, "volume_24h": 60_000, "narratives": ["Cats", "Dogs"]},
+    ]
+    return {"trending": trending, "new_launches": new}
 
 
 def build_overview() -> dict:

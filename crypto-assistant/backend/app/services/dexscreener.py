@@ -36,7 +36,9 @@ async def get_market(client: httpx.AsyncClient, mint: str) -> Optional[dict]:
         "price_change_24h": _to_float((best.get("priceChange") or {}).get("h24")),
         "price_change_1h": _to_float((best.get("priceChange") or {}).get("h1")),
         "pair_created_at": best.get("pairCreatedAt"),
+        "pair_address": best.get("pairAddress"),  # pool address, for OHLCV charts
         "dex_url": best.get("url"),
+        "source": "dexscreener",
     }
 
 
